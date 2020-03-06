@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family: 'Microsoft YaHei', sans-serif;
+        overflow: hidden;
+      }
+      section {
+        display: block;
+        height: 100%;
+        position: relative;
+        font-size: 18px;
+      }
+      .home-page p {
+        display: block;
+        position: relative;
+        text-align: center;
+        top: 42%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 0 10px;
+        font-size: 20px;
+      }
+      .home-page div {
+        position: relative;
+        height: 35px;
+        width: 85px;
+        text-align: center;
+        line-height: 35px;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        cursor: pointer;
+        top: 48%;
+        left: 50%;
+        transform: translate(-50%, -30%);
+      }
+      .chat-page {
+        display: none;
+      }
+      header {
+        height: 44px;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: #2b2b2b;
+        color: #fff;
+        padding: 0 20px;
+        font-size: 16px;
+      }
+      header div {
+        height: 100%;
+        line-height: 44px;
+      }
+      .header-name {
+        position: absolute;
+        left: 50%;
+        font-size: 18px;
+        transform: translateX(-50%);
+      }
+      .header-back {
+        float: left;
+      }
+      .header-person {
+        float: right;
+      }
+      .icon {
+        width: 28px;
+        height: 28px;
+        display: inline-block;
+        vertical-align: middle;
+        background-size: 100%;
+      }
+      .back {
+        background-image: url(https://sevenddddddd.github.io/next-wechat/icon/back.svg);
+      }
+      .person {
+        background-image: url(https://sevenddddddd.github.io/next-wechat/icon/person.svg);
+      }
+      .voice {
+        background-image: url(https://sevenddddddd.github.io/next-wechat/icon/voice.svg);
+      }
+      .smile {
+        background-image: url(https://sevenddddddd.github.io/next-wechat/icon/smile.svg);
+      }
+      .more {
+        background-image: url(https://sevenddddddd.github.io/next-wechat/icon/more.svg);
+      }
+      .play {
+        background-image: url('./play.svg');
+      }
+      main {
+        position: fixed;
+        top: 44px;
+        left: 0;
+        right: 0;
+        bottom: 50px;
+        background: #ebebeb;
+        padding: 1px 0 0 0;
+        transition: bottom 0.5s;
+      }
+      .chat {
+        width: 80%;
+        height: 40px;
+        left: 20px;
+        display: inline-block;
+        position: relative;
+        margin: 10px 20px 0 0;
+      }
+      .avator {
+        width: 40px;
+        height: 40px;
+        display: inline-block;
+        position: relative;
+      }
+      .avator img {
+        width: 40px;
+        height: 40px;
+        display: inline-block;
+        position: relative;
+        /* left: 30px; */
+        top: 10px;
+      }
+      .arrowLeft {
+        width: 0;
+        height: 0;
+        display: inline-block;
+        position: relative;
+        left: 1px;
+        z-index: 10;
+        border: 10px solid transparent;
+        border-right: 10px solid #fff;
+      }
+      .arrowRight {
+        width: 0;
+        height: 0;
+        display: inline-block;
+        position: relative;
+        z-index: 10;
+        left: calc(100% - 142px);
+        border: 10px solid transparent;
+        border-left: 10px solid #9fe759;
+      }
+      .chat-text {
+        padding: 5px 10px;
+        display: inline-block;
+        min-width: 50px;
+        min-height: 40px;
+        border-radius: 4px;
+        background: #fff;
+        position: absolute;
+        top: 10px;
+        /* right: 96px; */
+        word-break: break-all;
+        /* line-height: 40px; */
+        /* text-align: center; */
+        color: #000;
+        font-size: 16px;
+        border: 1px solid #ddd;
+      }
+      .chat-reply {
+        left: 20%;
+      }
+      .chat-reply .avator {
+        left: calc(100% - 70px);
+      }
+      .chat-reply .chat-text {
+        background: #9fe759;
+        border: 1px solid #87cd51;
+        right: 96px;
+      }
+      footer {
+        position: absolute;
+        z-index: 99;
+        left: 0;
+        bottom: -200px;
+        width: 100%;
+        transition: bottom 0.5s;
+      }
+      .footer-click {
+        height: 50px;
+        border-top: 1px solid #ddd;
+        background: #fff;
+        line-height: 50px;
+      }
+      .footer-click div {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .footer-round {
+        margin: 0 10px;
+        width: 34px;
+        height: 34px;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        background-size: 60%;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      .footer-input {
+        width: calc(100% - 182px);
+        height: 34px;
+        background: transparent;
+        border-bottom: 1px solid #ddd;
+      }
+      .footer-select {
+        width: 100%;
+        height: 200px;
+        background: #ebebeb;
+
+        padding: 10px 0;
+      }
+      .footer-select .chat {
+        width: 380px;
+        /* margin: 0 auto; */
+        height: 40px;
+        left: 30px;
+        display: block;
+        position: relative;
+        margin: 10px auto;
+      }
+      .last {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.15);
+        display: none;
+        position: absolute;
+        top: 0;
+        text-align: center;
+        border-radius: 10px;
+        padding: 10px;
+      }
+      .last-container {
+        width: 30%;
+        height: 120px;
+        font-size: 24px;
+        position: absolute;
+        line-height: 120px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+      }
+      .last-icon {
+        position: absolute;
+        bottom: 5px;
+        height: 30px;
+        width: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .last-icon .icon {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="home-page">
+      <p>今天闲在宿舍, 可以进行的活动有很多, 那么到底该选择哪一个呢?</p>
+      <div onclick="nextPage()">下一步</div>
+    </section>
+    <section class="chat-page">
+      <header>
+        <div class="header-back">
+          <i class="icon back"></i>
+          微信
+        </div>
+        <div class="header-name">
+          文件传输助手(伪)
+        </div>
+        <div class="header-person">
+          <i class="icon person"></i>
+        </div>
+      </header>
+      <main></main>
+      <footer>
+        <div class="footer-click" onclick="alternative()">
+          <div class="footer-round voice"></div>
+          <div class="footer-input"></div>
+          <div class="footer-round smile"></div>
+          <div class="footer-round more"></div>
+        </div>
+        <div class="footer-select">
+          <div class="chat chat-reply" data-list="3">
+            <div class="avator">
+              <img src="avator2.jpg" alt="我的头像" />
+            </div>
+            <div class="arrowRight"></div>
+            <div class="chat-text">???????????????????????</div>
+          </div>
+          <div class="chat chat-reply" data-list="2">
+            <div class="avator">
+              <img src="avator2.jpg" alt="我的头像" />
+            </div>
+            <div class="arrowRight"></div>
+            <div class="chat-text">???????????????????????</div>
+          </div>
+          <div class="chat chat-reply" data-list="1">
+            <div class="avator">
+              <img src="avator2.jpg" alt="我的头像" />
+            </div>
+            <div class="arrowRight"></div>
+            <div class="chat-text">???????????????????????</div>
+          </div>
+        </div>
+      </footer>
+    </section>
+    <div class="last">
+      <div class="last-container">
+        <div class="last-content"></div>
+        <div class="last-icon" onclick="window.location.reload()">
+          <i class="icon play"></i>
+        </div>
+      </div>
+    </div>
+    <script>
+      var NUM = 0;
+      var score = 0;
+      var $ = select => {
+        return document.querySelectorAll(select);
+      };
+      var ask = [
+        '我寻思好像有点作业, 你动了没',
+        '这个计划里好像有什么要学的, 你有印象吗',
+        '最后这衣服好像堆起三天没洗了欸'
+      ];
+      var result = [
+        '行,玩奥日与黑暗森林吧',
+        '行,玩LOL打极地大乱斗吧',
+        '行,玩雀魂打麻将去吧'
+      ];
+      var reply = [
+        ['呜哇,刚做到一半', '昨天的作业根本就没有动', '有作业?????'],
+        ['你说的是css?没有动', '你说的是js?没有动', '你说的是http?没有动'],
+        [
+          '洗了(我超爱干净的)',
+          '洗了(没办法不洗不行啊)',
+          '洗了(没问题了吧,快让我玩)'
+        ]
+      ];
+
+      var homePg = $('.home-page');
+      var chatPg = $('.chat-page');
+      function nextPage() {
+        homePg[0].style.display = 'none';
+        chatPg[0].style.display = 'block';
+        appendC(ask[NUM]);
+        changeText();
+      }
+      var footer = $('footer');
+      var flag = 1; //检测select是否可见
+      function alternative() {
+        if (!flag) {
+          footer[0].style.bottom = '-200px';
+          flag = 1;
+          return;
+        }
+        if (flag) {
+          footer[0].style.bottom = 0;
+          flag = 0;
+        }
+      }
+      var main = $('main')[0];
+      var footerClick = $('.footer-select');
+      footerClick[0].addEventListener('click', function(e) {
+        if (e.target.innerText) {
+          appendC(e.target.innerText, 'reply');
+          NUM++;
+          if (e.target.dataset['list']) score += +e.target.dataset['list'];
+          else score += +e.path[1].dataset['list'];
+          if (NUM === 3) {
+            alternative();
+            GetResult();
+            return;
+          }
+          alternative();
+          changeText();
+
+          appendC(ask[NUM]);
+        }
+      });
+      function appendC(Text, flag) {
+        var append = '';
+        if (flag === 'reply')
+          append =
+            '<div class="chat chat-reply">\n' +
+            '            <div class="avator">\n' +
+            '              <img src="avator2.jpg" alt="我的头像" />\n' +
+            '            </div>\n' +
+            '            <div class="arrowRight"></div>\n' +
+            '            <div class="chat-text">' +
+            Text +
+            '</div>\n' +
+            '          </div>';
+        else
+          append =
+            '<div class="chat">\n' +
+            '          <div class="avator">\n' +
+            '            <img src="avator1.jpg" alt="我的头像" />\n' +
+            '          </div>\n' +
+            '          <div class="arrowLeft"></div>\n' +
+            '          <div class="chat-text">' +
+            Text +
+            '</div>\n' +
+            '        </div>';
+        var tem = document.createElement('div');
+        tem.innerHTML = append;
+        console.log(tem);
+        main.appendChild(tem);
+      }
+      var chatText = $('.footer-select .chat-text');
+      function changeText() {
+        for (var i = 0; i < chatText.length; i++) {
+          chatText[i].textContent = reply[NUM][i];
+        }
+      }
+      function GetResult() {
+        var index = parseInt(score / 3);
+        var tem = result[index - 1];
+        var last = $('.last')[0];
+        var lastContent = $('.last-content')[0];
+        lastContent.innerText = tem;
+        last.style.display = 'block';
+      }
+    </script>
+  </body>
+</html>
