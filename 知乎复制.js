@@ -1,0 +1,1 @@
+window.addEventListener('copy',(e)=>e.stopPropagation(),true)
