@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      xcode = function(s, f) {
+        if (!s) return '';
+        var dict = {},
+          out = [],
+          prefix = s.charAt(0),
+          curChar = prefix,
+          oldPrefix = curChar,
+          idx = 256,
+          i,
+          c,
+          d,
+          g = function() {
+            out.push(
+              prefix.length > 1 ? String.fromCharCode(dict[prefix]) : prefix
+            );
+          };
+        if (f) {
+          out.push(prefix);
+        }
+        for (i = 1, c, d; i < s.length; i++) {
+          c = s.charAt(i);
+          if (f) {
+            d = s.charCodeAt(i);
+            prefix = d < 256 ? c : dict[d] || prefix + curChar;
+            out.push(prefix);
+            curChar = prefix.charAt(0);
+            dict[idx++] = oldPrefix + curChar;
+            oldPrefix = prefix;
+          } else {
+            if (dict.hasOwnProperty(prefix + c)) {
+              prefix += c;
+            } else {
+              g();
+              dict[prefix + c] = idx++;
+              prefix = c;
+            }
+          }
+        }
+        if (!f) g();
+        return out.join('');
+      };
+      console.log(xcode(xcode('一二二一二一二二'), true));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      body {
+        font-family: '微软雅黑';
+      }
+
+      div {
+        width: 200px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <input type="file" id="files" name="upload" />
+    <div id="list"></div>
+    <script src="index.js"></script>
+    <script>
+      var gameProbability = Math.random();
+      var game = '玩';
+      if (gameProbability > 0.5) game;
+      else game = '不玩';
+      document.write('<div style="font-size:0px">' + game + '</div>');
+      console.log(gameProbability);
+
+      var gifInfo = {
+        Header: '474946383961',
+        LogicalSD: {
+          CanvasW: '',
+          CanvasH: '',
+          Packed: {
+            //Packed Field 采用二进制
+            GlobalCTF: '',
+            ColorR: '',
+            SortF: '',
+            Size: ''
+          },
+          BackCI: '',
+          PixelAR: '00'
+        },
+        GlobalCTable: '',
+        GlobalCTE: {
+          ExtensionI: '21',
+          GraphicCL: 'F9',
+          ByteS: '04',
+          Packed: {
+            Reserved: '000',
+            DisplayM: '000',
+            UserI: '0',
+            TransparentF: '0'
+          },
+          DelayT: '0000',
+          TransparentC: '00',
+          BlockT: '00'
+        },
+
+        ImageD: {
+          ImageS: '2C',
+          ImageL: '0000',
+          ImageT: '0000',
+          ImageW: '',
+          ImageH: '',
+          Packed: '00000000'
+        },
+        ImageData: {
+          LzwM: '',
+          NumB: '',
+          DataS: '',
+          BlockT: '00'
+        },
+        PlainTE: '',
+        AppE: '',
+        CommentE: '',
+        Trailer: '3B'
+      };
+      function readInfo(binarr, set, colorArr) {
+        //gif Logical Screen Descriptor
+        var LogicalSD = gifInfo.LogicalSD;
+        var width = binarr[18] + binarr[19];
+        var height = binarr[22] + binarr[23];
+        LogicalSD.CanvasW = width;
+        LogicalSD.CanvasH = height;
+        //LSD 中二进制packed开始
+        LogicalSD.Packed.GlobalCTF = '1';
+        var colorNum = set.size();
+        if (colorNum > 256) {
+          //TODO 暂且不进行颜色压缩
+          alert('颜色数目过多');
+          return;
+        }
+        var val = parseInt(Math.log2(colorNum)) - 1; //2^(s+1)
+        var num = val.toString(2);
+        var deduct = 3 - num.length + '';
+        LogicalSD.ColorR = '0'.repeat(deduct) + num;
+        LogicalSD.sortF = '0';
+        LogicalSD.size = '0'.repeat(deduct) + num;
+        //packed 结束
+        LogicalSD.BackCI = '00';
+        LogicalSD.PixelAR = '00';
+        //Global Color Table 全局颜色
+        var gct = [];
+        Object.keys(set).forEach(function(val) {
+          gct.push(val);
+        });
+        gifInfo.GlobalCTable = gct.join('');
+
+        //Graphics Control ExtensionI 动图需要
+
+        //Image Descriptor 下一帧情况
+        gifInfo.ImageD.ImageW = width;
+        gifInfo.ImageD.ImageH = height;
+        //Image Data
+        var imageData = gifInfo.ImageData;
+        var num = (val + 1).toString(16);
+        var deduct = 3 - num.length + '';
+        imageData.LzwM = '0'.repeat(deduct) + num;
+      }
+      function lzwGif(colorArr, gct, set) {
+        var num = gct.length;
+        var map = {};
+        //构建码表
+        for (var i = 0; i < num; i++) {
+          map[set[gct[i]]] = i;
+        }
+        map[num] = 'clear';
+        map[num + 1] = 'stop';
+      }
+      //读取bmp中的颜色
+      function readRGB(binarr) {
+        var colorArr = [],
+          set = {},
+          index = 0;
+        //对于bmp24位图,从54开始,注意最后两个00是不用管的
+        for (var i = 54; i < binarr.length - 2; i += 3) {
+          var i = 0;
+          var rgb = binarr[i] + binarr[i + 1] + binarr[i + 2];
+          if (!set[rgb]) {
+            set[rgb] = i++;
+          }
+          colorArr[index++] = set[rgb]; //顺序是BGR
+        }
+        return [colorArr, set];
+      }
+      function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
+
+        // files is a FileList of File objects. List some properties.
+        var output = [];
+        for (var i = 0, f; (f = files[i]); i++) {
+          output.push(
+            '<li><strong>',
+            escape(f.name),
+            '</strong> (',
+            f.type || 'n/a',
+            ') - ',
+            f.size,
+            ' bytes, last modified: ',
+            f.lastModifiedDate.toLocaleDateString(),
+            '</li>'
+          );
+          var reader = new FileReader();
+          var binarr = [];
+          reader.onload = e => {
+            console.log('原始数组:' + e.target.result);
+            let array = new Uint8Array(e.target.result);
+            array.forEach(function(val, i, arr) {
+              var num = val.toString(16);
+              var deduct = 2 - num.length + '';
+              binarr[i] = '0'.repeat(deduct) + num;
+            });
+            console.log(binarr);
+          };
+          reader.readAsArrayBuffer(f);
+          // reader.onload = (function(theFile) {
+          //   return function(r) {
+          //     // console.log(r);
+          //     lzwUn(lzw(r.target.result));
+          //   };
+          // })(); //这里可以不用reader
+          // // Read in the image file as a data URL.
+          // reader.readAsText(f);
+          // console.log(reader);
+        }
+        document.getElementById('list').innerHTML =
+          '<ul>' + output.join('') + '</ul>';
+      }
+
+      document
+        .getElementById('files')
+        .addEventListener('change', handleFileSelect, false);
+    </script>
+  </body>
+</html>

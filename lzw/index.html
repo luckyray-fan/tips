@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      .uncom {
+        width: 80px;
+        height: 35px;
+        text-align: center;
+        line-height: 35px;
+        border: 1px solid #258bf0;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="files" name="upload" />
+    <div class="uncom" onclick="loadFile()">下载文件</div>
+    <div id="list"></div>
+    <script src="index.js"></script>
+    <script>
+      var gameProbability = Math.random();
+      var game = '玩';
+      if (gameProbability > 0.5) game;
+      else game = '不玩';
+      document.write('<div style="font-size:0px">' + game + '</div>');
+      console.log(gameProbability);
+
+      var fileName = '',
+        content = '';
+
+      function loadFile() {
+        var aLink = document.createElement('a');
+        var blob = new Blob([content], {
+          type: 'text/plain'
+        });
+        var evt = new Event('click');
+        aLink.download = fileName;
+        aLink.href = URL.createObjectURL(blob);
+        aLink.click();
+        URL.revokeObjectURL(blob);
+      }
+
+      function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
+
+        // files is a FileList of File objects. List some properties.
+        var output = [];
+        for (var i = 0, f; (f = files[i]); i++) {
+          output.push(
+            '<li><strong>',
+            escape(f.name),
+            '</strong> (',
+            f.type || 'n/a',
+            ') - ',
+            f.size,
+            ' bytes, last modified: ',
+            f.lastModifiedDate.toLocaleDateString(),
+            '</li>'
+          );
+          var reader = new FileReader();
+          reader.onload = (function(fN) {
+            return function(r) {
+              // console.log(r);
+              // var flag = confirm('压缩选是,解压选否');
+              // fileName = fN;
+              // content = flag ? lzw(r.target.result) : lzwUn(r.target.result);
+              lzwUn(lzw(r.target.result));
+            };
+          })(f.name); //这里可以不用reader
+          // Read in the image file as a data URL.
+          reader.readAsText(f);
+          console.log(reader);
+        }
+        document.getElementById('list').innerHTML =
+          '<ul>' + output.join('') + '</ul>';
+      }
+
+      document
+        .getElementById('files')
+        .addEventListener('change', handleFileSelect, false);
+    </script>
+  </body>
+</html>
